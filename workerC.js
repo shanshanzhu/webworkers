@@ -26,6 +26,5 @@ onmessage = function(event){
 
   f(event.data[0][1],event.data[0][2],event.data[0][3]);
   
-  postMessage([count, event.data[0][4]]);
-  //postMessage(count);
+  postMessage(count);
 };

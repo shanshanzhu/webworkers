@@ -27,6 +27,8 @@
       <li>n=14 --> 365,596</li>
       <li>n=15 --> 2,279,184</li>
       <li>n=16 --> 14,772,512</li>
+      <li>n=17 --> 95,815,104</li>
+      <li>n=18 --> 666,090,624</li>
     </ul>
   <span class="order"><h3>Worker finish order:</h3></span>
 
@@ -35,21 +37,32 @@
       $(document).ready(function(){
         window.queue = [];
         window.count = 0;
-        window.n = 14;
+        window.n = 16;
         window.finished = 0;
 
         $('.nqueens').text(n);
         
         //  Automatically queue the first n possibilities
-        var ld=0, c=0, rd=0;
+        // var ld=0, c=0, rd=0;
         
-        ld = ld << 1;
-        rd = rd >> 1;
+        // ld = ld << 1;
+        // rd = rd >> 1;
 
+        // var poss = 1;
+        // for(var i = 0; i < n; i++){
+        //   queue.push([n, (poss | ld), (poss | c), (poss | rd)]);
+        //   poss = poss << 1;
+        // }
+
+        var halfstop = Math.pow(2,Math.floor(n/2));
         var poss = 1;
-        for(var i = 0; i < n; i++){
-          queue.push([n, (poss | ld), (poss | c), (poss | rd)]);
+        while (poss !== halfstop) {
+          queue.push([n, poss, poss, poss, true]);
           poss = poss << 1;
+        }
+        count *= 2;
+        if (n % 2 === 1) {
+          queue.push([n, poss, poss, poss, false]);
         }
 
 
@@ -59,8 +72,8 @@
         var workerC = new Worker('worker.js');
         
         workerA.onmessage = function (event) {
-          count += event.data;
-          $('.result').text(count);
+          count += event.data[0] * (event.data[1] ? 2 : 1);
+          $('.result').text(numberWithCommas(count));
           if(queue.length){
             workerA.postMessage([queue.shift()]);
           }else{
@@ -71,8 +84,8 @@
         };
 
         workerC.onmessage = function (event) {
-          count += event.data;
-          $('.result').text(count);
+          count += event.data[0] * (event.data[1] ? 2 : 1);
+          $('.result').text(numberWithCommas(count));
           if(queue.length){
             workerC.postMessage([queue.shift()]);
           }else{
@@ -83,8 +96,8 @@
         };
 
         workerB.onmessage = function (event) {
-          count += event.data;
-          $('.result').text(count);
+          count += event.data[0] * (event.data[1] ? 2 : 1);
+          $('.result').text(numberWithCommas(count));
           if(queue.length){
             workerB.postMessage([queue.shift()]);
           }else{
@@ -103,9 +116,13 @@
           if(finished === 3){
             var end = new Date().getTime();
             var time = end - start;
-            $('.runtime').text('The three workers finished in ' + time + 'ms');
+            $('.runtime').text('The three workers finished in ' + numberWithCommas(time) + 'ms');
           }
-        }
+        };
+
+        var numberWithCommas = function(x) {
+          return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        };
       });
     </script>
   </body>
