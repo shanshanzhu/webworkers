@@ -6,40 +6,40 @@
     <script src="lib/jquery.js"></script>
   </head>
   <body>
+    <h3>Progress:</h3>
     <p>The most solutions found so far for n = <span class="nqueens"></span>: <output class="result"></output></p>
     <p><span class="runtime"></span></p>
 
     <h3>N-Queens Solutions:</h3>
     <ul class="solutions">
-      <li>n=0 ---- 1</li>
-      <li>n=1 ---- 1</li>
-      <li>n=2 ---- 0</li>
-      <li>n=3 ---- 0</li>
-      <li>n=4 ---- 2</li>
-      <li>n=5 ---- 10</li>
-      <li>n=6 ---- 4</li>
-      <li>n=7 ---- 40</li>
-      <li>n=8 ---- 92</li>
-      <li>n=9 ---- 352</li>
-      <li>n=10 ---- 724</li>
-      <li>n=11 --> 2,680</li>
-      <li>n=12 --> 14,200</li>
-      <li>n=13 --> 73,712</li>
-      <li>n=14 --> 365,596</li>
-      <li>n=15 --> 2,279,184</li>
-      <li>n=16 --> 14,772,512</li>
-      <li>n=17 --> 95,815,104</li>
-      <li>n=18 --> 666,090,624</li>
+      <li>n = 0 ----> 1</li>
+      <li>n = 1 ----> 1</li>
+      <li>n = 2 ----> 0</li>
+      <li>n = 3 ----> 0</li>
+      <li>n = 4 ----> 2</li>
+      <li>n = 5 ----> 10</li>
+      <li>n = 6 ----> 4</li>
+      <li>n = 7 ----> 40</li>
+      <li>n = 8 ----> 92</li>
+      <li>n = 9 ----> 352</li>
+      <li>n = 10 ----> 724</li>
+      <li>n = 11 ----> 2,680</li>
+      <li>n = 12 ----> 14,200</li>
+      <li>n = 13 ----> 73,712</li>
+      <li>n = 14 ----> 365,596</li>
+      <li>n = 15 ----> 2,279,184</li>
+      <li>n = 16 ----> 14,772,512</li>
+      <li>n = 17 ----> 95,815,104</li>
+      <li>n = 18 ----> 666,090,624</li>
     </ul>
   <span><h3>Worker Finish Order:</h3><ul class="order"></ul></span>
 
     <script>
-
       $(document).ready(function(){
         window.solutions = [1, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200, 73712, 365596, 2279184, 14772512, 95815104, 666090624];
         window.queue = [];
         window.count = 0;
-        window.n = 15;
+        window.n = 17;
         window.wks = 4
         window.finished = 0;
 
@@ -55,6 +55,30 @@
         count *= 2;
         if (n % 2 === 1) {
           queue.push([n, poss, poss, poss, false]);
+        }
+
+        var k = 0;
+        while(k < 2){
+          var len = queue.length;
+          for(var j = 0; j < len; j++){
+            var current = queue.shift();
+            n = current[0];
+            var ld = current[1];
+            var c = current[2];
+            var rd = current[3];
+
+            ld = ld << 1;
+            rd = rd >> 1;
+
+            poss = 1;
+            for(var i = 0; i < n; i++){
+              if((poss & (ld | c | rd)) === 0){
+                queue.push([n, poss | ld, poss | c, poss | rd, current[4]]);
+              }
+              poss = poss << 1;
+            }
+          }
+          k++
         }
 
         // Start the worker thread(s)
