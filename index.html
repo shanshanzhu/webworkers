@@ -4,6 +4,7 @@
     <title>Javascript Web Workers</title>
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <script src="lib/jquery.js"></script>
+    <script src="initialize.js"></script>
   </head>
   <body>
     <h3>Progress:</h3>
@@ -36,56 +37,20 @@
 
     <script>
       $(document).ready(function(){
-        window.solutions = [1, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200, 73712, 365596, 2279184, 14772512, 95815104, 666090624];
-        window.queue = [];
-        window.count = 0;
-        window.n = 16;
-        window.wks = 4
-        window.finished = 0;
+        var solutions = [1, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200, 73712, 365596, 2279184, 14772512, 95815104, 666090624];
+        var count = 0;
+        var n = 17;
+        var workers = 4;
+        var finished = 0;
+        var queue = initialize(n, 1);
 
         $('.nqueens').text(n);
-        
-        //  Automatically queue the first n possibilities
-        var halfstop = Math.pow(2,Math.floor(n/2));
-        var poss = 1;
-        while (poss !== halfstop) {
-          queue.push([n, poss, poss, poss, true]);
-          poss = poss << 1;
-        }
-        count *= 2;
-        if (n % 2 === 1) {
-          queue.push([n, poss, poss, poss, false]);
-        }
-
-        var k = 0;
-        while(k < 2){
-          var len = queue.length;
-          for(var j = 0; j < len; j++){
-            var current = queue.shift();
-            n = current[0];
-            var ld = current[1];
-            var c = current[2];
-            var rd = current[3];
-
-            ld = ld << 1;
-            rd = rd >> 1;
-
-            poss = 1;
-            for(var i = 0; i < n; i++){
-              if((poss & (ld | c | rd)) === 0){
-                queue.push([n, poss | ld, poss | c, poss | rd, current[4]]);
-              }
-              poss = poss << 1;
-            }
-          }
-          k++
-        }
 
         // Start the worker thread(s)
         var workerList = [];
 
         var start = new Date().getTime();
-        for (var i = 0; i < wks; i++) {
+        for (var i = 0; i < workers; i++) {
           var worker = new Worker('worker.js');
           worker.number = i+1;
           worker.onmessage = function(event) {
@@ -106,7 +71,7 @@
         console.log(workerList);
 
         var timer = function(){
-          if(finished === 4){
+          if(finished === workers){
             var end = new Date().getTime();
             var time = end - start;
             $('.runtime').text('The workers finished in ' + numberWithCommas(time) + 'ms');

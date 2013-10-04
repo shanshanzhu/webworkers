@@ -1,5 +1,4 @@
 onmessage = function(event){
-  //postMessage(event.data);
   var n = event.data[0][0];
 
   if(n === 0){ return 1; }
@@ -27,5 +26,4 @@ onmessage = function(event){
   f(event.data[0][1],event.data[0][2],event.data[0][3]);
   
   postMessage([count, event.data[0][4]]);
-  //postMessage(count);
 };
