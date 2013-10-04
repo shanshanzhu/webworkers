@@ -39,7 +39,7 @@
         window.solutions = [1, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200, 73712, 365596, 2279184, 14772512, 95815104, 666090624];
         window.queue = [];
         window.count = 0;
-        window.n = 17;
+        window.n = 16;
         window.wks = 4
         window.finished = 0;
 
@@ -109,7 +109,7 @@
           if(finished === 4){
             var end = new Date().getTime();
             var time = end - start;
-            $('.runtime').text('The three workers finished in ' + numberWithCommas(time) + 'ms');
+            $('.runtime').text('The workers finished in ' + numberWithCommas(time) + 'ms');
           }
         };
 
