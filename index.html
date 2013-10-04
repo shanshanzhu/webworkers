@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Javascript Web Workers</title>
+    <script src="lib/jquery.js"></script>
+  </head>
+  <body>
+    <p>The most solutions found so far for n = <span class="nqueens"></span>: <output class="result"></output></p>
+    <p><span class="runtime"></span></p>
+
+    <h3>N-Queens Solutions:</h3>
+    <ul>
+      <li>n=0 --> 1</li>
+      <li>n=1 --> 1</li>
+      <li>n=2 --> 0</li>
+      <li>n=3 --> 0</li>
+      <li>n=4 --> 2</li>
+      <li>n=5 --> 10</li>
+      <li>n=6 --> 4</li>
+      <li>n=7 --> 40</li>
+      <li>n=8 --> 92</li>
+      <li>n=9 --> 352</li>
+      <li>n=10 --> 724</li>
+      <li>n=11 --> 2,680</li>
+      <li>n=12 --> 14,200</li>
+      <li>n=13 --> 73,712</li>
+      <li>n=14 --> 365,596</li>
+      <li>n=15 --> 2,279,184</li>
+      <li>n=16 --> 14,772,512</li>
+    </ul>
+  <span class="order"><h3>Worker finish order:</h3></span>
+
+    <script>
+
+      $(document).ready(function(){
+        window.queue = [];
+        window.count = 0;
+        window.n = 14;
+        window.finished = 0;
+
+        $('.nqueens').text(n);
+        
+        //  Automatically queue the first n possibilities
+        var ld=0, c=0, rd=0;
+        
+        ld = ld << 1;
+        rd = rd >> 1;
+
+        var poss = 1;
+        for(var i = 0; i < n; i++){
+          queue.push([n, (poss | ld), (poss | c), (poss | rd)]);
+          poss = poss << 1;
+        }
+
+
+        // Start the worker thread(s)
+        var workerA = new Worker('worker.js');
+        var workerB = new Worker('worker.js');
+        var workerC = new Worker('worker.js');
+        
+        workerA.onmessage = function (event) {
+          count += event.data;
+          $('.result').text(count);
+          if(queue.length){
+            workerA.postMessage([queue.shift()]);
+          }else{
+            finished++;
+            timer();
+            $('.order').append('<b>Worker A done!!<br></b>');
+          }
+        };
+
+        workerC.onmessage = function (event) {
+          count += event.data;
+          $('.result').text(count);
+          if(queue.length){
+            workerC.postMessage([queue.shift()]);
+          }else{
+            finished++;
+            timer();
+            $('.order').append('<b>Worker C done!!<br></b>');
+          }
+        };
+
+        workerB.onmessage = function (event) {
+          count += event.data;
+          $('.result').text(count);
+          if(queue.length){
+            workerB.postMessage([queue.shift()]);
+          }else{
+            finished++;
+            timer();
+            $('.order').append('<b>Worker B done!<br></b>');
+          }
+        };
+
+        var start = new Date().getTime();
+        workerA.postMessage([queue.shift()]);
+        workerB.postMessage([queue.shift()]);
+        workerC.postMessage([queue.shift()]);
+
+        var timer = function(){
+          if(finished === 3){
+            var end = new Date().getTime();
+            var time = end - start;
+            $('.runtime').text('The three workers finished in ' + time + 'ms');
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
